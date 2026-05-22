@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>💰 나의 투자성향 테스트</title>
+  <style>
+    /* ===== 기본 설정 ===== */
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
+
+    body {
+      font-family: 'Apple SD Gothic Neo', 'Pretendard', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* ===== 메인 카드 ===== */
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    /* ===== 헤더 ===== */
+    .header {
+      margin-bottom: 30px;
+    }
+
+    .header .emoji {
+      font-size: 48px;
+      display: block;
+      margin-bottom: 15px;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      color: #2d3748;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .header p {
+      color: #718096;
+      font-size: 1rem;
+    }
+
+    /* ===== 투표 옵션 ===== */
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .option-btn {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 18px 20px;
+      background: #f7fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+      font-size: 1rem;
+      color: #2d3748;
+    }
+
+    .option-btn:hover {
+      background: #edf2f7;
+      border-color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    }
+
+    .option-btn.selected {
+      background: #667eea;
+      border-color: #667eea;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .option-emoji {
+      font-size: 1.5rem;
+      width: 30px;
+      text-align: center;
+    }
+
+    .option-text {
+      flex: 1;
+      font-weight: 600;
+    }
+
+    .option-check {
+      font-size: 1.2rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .option-btn.selected .option-check {
+      opacity: 1;
+    }
+
+    /* ===== 투표 버튼 ===== */
+    .vote-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .vote-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .vote-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ===== 결과 페이지 ===== */
+    #result-page { 
+      display: none; 
+    }
+
+    .winner-box {
+      background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 25px;
+      color: #2d3748;
+    }
+
+    .winner-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .winner-subtitle {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    /* ===== 결과 차트 ===== */
+    .result-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .result-item {
+      text-align: left;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .result-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .result-count {
+      font-size: 0.9rem;
+      color: #718096;
+    }
+
+    .bar-container {
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      width: 0%;
+      transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* 각 옵션별 색상 */
+    .bar-fill.color-0 { background: linear-gradient(90deg, #667eea, #764ba2); }
+    .bar-fill.color-1 { background: linear-gradient(90deg, #f093fb, #f5576c); }
+    .bar-fill.color-2 { background: linear-gradient(90deg, #4facfe, #00f2fe); }
+    .bar-fill.color-3 { background: linear-gradient(90deg, #43e97b, #38f9d7); }
+    .bar-fill.color-4 { background: linear-gradient(90deg, #fa709a, #fee140); }
+
+    /* ===== 하단 버튼 ===== */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-secondary {
+      flex: 1;
+      padding: 12px;
+      background: #edf2f7;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      color: #4a5568;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-primary {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    /* ===== 총 투표수 ===== */
+    .total-count {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #718096;
+      margin-bottom: 20px;
+    }
+
+    /* ===== 반응형 디자인 ===== */
+    @media (max-width: 480px) {
+      .container { 
+        padding: 25px 20px; 
+      }
+      .header h1 { 
+        font-size: 1.5rem; 
+      }
+      .option-btn { 
+        padding: 15px; 
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ==================== 투표 페이지 ==================== -->
+<div class="container" id="vote-page">
+  <div class="header">
+    <span class="emoji">💰</span>
+    <h1>만약 용돈 10만원이 생겼다면?</h1>
+    <p>가장 하고 싶은 것을 선택해보세요!</p>
+  </div>
+
+  <div class="options">
+    <button class="option-btn" onclick="selectOption(0)">
+      <span class="option-emoji">📈</span>
+      <span class="option-text">좋아하는 회사 주식 사기</span>
+      <span class="option-check">✓</span>
+    </button>
+    <button class="option-btn" onclick="selectOption(1)">
+      <span class="option-emoji">🎮</span>
+      <span class="option-text">게임 아이템 구매</span>
+      <span class="option-check">✓</span>
+    </button>
+    <button class="option-btn" onclick="selectOption(2)">
+      <span class="option-emoji">👟</span>
+      <span class="option-text">한정판 운동화 (리셀 목적)</span>
+      <span class="option-check">✓</span>
+    </button>
+    <button class="option-btn" onclick="selectOption(3)">
+      <span class="option-emoji">💰</span>
+      <span class="option-text">은행에 적금 넣기</span>
+      <span class="option-check">✓</span>
+    </button>
+    <button class="option-btn" onclick="selectOption(4)">
+      <span class="option-emoji">🍕</span>
+      <span class="option-text">맛있는 음식 먹기</span>
+      <span class="option-check">✓</span>
+    </button>
+  </div>
+
+  <button class="vote-btn" id="vote-btn" disabled onclick="submitVote()">
+    ✅ 투표하기
+  </button>
+</div>
+
+<!-- ==================== 결과 페이지 ==================== -->
+<div class="container" id="result-page">
+  <div class="header">
+    <span class="emoji">📊</span>
+    <h1>투표 결과</h1>
+    <p>다른 친구들은 어떻게 선택했을까요?</p>
+  </div>
+
+  <div class="winner-box" id="winner-box">
+    <div class="winner-title" id="winner-title">🏆 1위: 주식 투자</div>
+    <div class="winner-subtitle">미래 가치를 보는 투자형!</div>
+  </div>
+
+  <div class="total-count" id="total-count">총 0명 참여</div>
+
+  <div class="result-list" id="result-list">
+    <!-- JavaScript로 동적 생성 -->
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-secondary" onclick="resetVote()">🔄 다시 투표</button>
+    <button class="btn-primary" onclick="showResult()">🔃 새로고침</button>
+  </div>
+</div>
+
+<script>
+  // ===== 데이터 설정 =====
+  const OPTIONS = [
+    { emoji: "📈", name: "주식 투자", insight: "미래 가치를 보는 투자형!" },
+    { emoji: "🎮", name: "게임 아이템", insight: "현재의 즐거움을 중시하는 현재형!" },
+    { emoji: "👟", name: "한정판 운동화", insight: "실물 자산에 투자하는 실전형!" },
+    { emoji: "💰", name: "적금 저축", insight: "안전을 중시하는 안정형!" },
+    { emoji: "🍕", name: "맛있는 음식", insight: "삶의 질을 중시하는 행복형!" }
+  ];
+
+  const STORAGE_KEY = "investment_votes";
+  const VOTED_KEY = "has_voted";
+
+  let selectedIndex = -1;
+
+  // ===== 로컬스토리지 관리 =====
+  function getVotes() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [0, 0, 0, 0, 0];
+  }
+
+  function saveVotes(votes) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(votes));
+  }
+
+  function hasVoted() {
+    return localStorage.getItem(VOTED_KEY) === "true";
+  }
+
+  function markVoted() {
+    localStorage.setItem(VOTED_KEY, "true");
+  }
+
+  // ===== 옵션 선택 =====
+  function selectOption(index) {
+    // 이전 선택 해제
+    document.querySelectorAll('.option-btn').forEach(btn => {
+      btn.classList.remove('selected');
+    });
+    
+    // 새 선택 적용
+    document.querySelectorAll('.option-btn')[index].classList.add('selected');
+    selectedIndex = index;
+    document.getElementById('vote-btn').disabled = false;
+  }
+
+  // ===== 투표 제출 =====
+  function submitVote() {
+    if (selectedIndex === -1) return;
+
+    const votes = getVotes();
+    votes[selectedIndex]++;
+    saveVotes(votes);
+    markVoted();
+
+    setTimeout(() => showResult(), 300);
+  }
+
+  // ===== 결과 표시 =====
+  function showResult() {
+    const votes = getVotes();
+    const total = votes.reduce((a, b) => a + b, 0);
+
+    // 페이지 전환
+    document.getElementById('vote-page').style.display = 'none';
+    document.getElementById('result-page').style.display = 'block';
+
+    // 1위 계산
+    const maxVotes = Math.max(...votes);
+    const winnerIndex = votes.indexOf(maxVotes);
+    const winner = OPTIONS[winnerIndex];
+
+    document.getElementById('winner-title').textContent = 
+      `🏆 1위: ${winner.name}`;
+    document.querySelector('.winner-subtitle').textContent = winner.insight;
+
+    // 총 투표수
+    document.getElementById('total-count').textContent = `총 ${total}명 참여`;
+
+    // 결과 리스트 생성
+    const resultList = document.getElementById('result-list');
+    resultList.innerHTML = '';
+
+    votes.forEach((count, index) => {
+      const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+      const option = OPTIONS[index];
+
+      const item = document.createElement('div');
+      item.className = 'result-item';
+      item.innerHTML = `
+        <div class="result-header">
+          <div class="result-label">
+            <span>${option.emoji}</span>
+            <span>${option.name}</span>
+          </div>
+          <div class="result-count">${count}표 (${percentage}%)</div>
+        </div>
+        <div class="bar-container">
+          <div class="bar-fill color-${index}" id="bar-${index}"></div>
+        </div>
+      `;
+      resultList.appendChild(item);
+    });
+
+    // 애니메이션 효과
+    setTimeout(() => {
+      votes.forEach((count, index) => {
+        const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+        const bar = document.getElementById(`bar-${index}`);
+        if (bar) bar.style.width = percentage + '%';
+      });
+    }, 100);
+  }
+
+  // ===== 다시 투표 =====
+  function resetVote() {
+    localStorage.removeItem(VOTED_KEY);
+    selectedIndex = -1;
+
+    document.getElementById('result-page').style.display = 'none';
+    document.getElementById('vote-page').style.display = 'block';
+
+    document.querySelectorAll('.option-btn').forEach(btn => {
+      btn.classList.remove('selected');
+    });
+    document.getElementById('vote-btn').disabled = true;
+  }
+
+  // ===== 초기화 =====
+  window.onload = function() {
+    if (hasVoted()) {
+      showResult();
+    }
+  };
+</script>
+
+</body>
+</html>
