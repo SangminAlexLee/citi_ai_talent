@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기업 분석 프롬프트 템플릿</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&family=IBM+Plex+Mono:wght@400;500&family=Pretendard:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --bg2: #141720;
+    --bg3: #1c2030;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #e8eaf0;
+    --text2: #8a90a0;
+    --text3: #555c70;
+    --accent: #4f8ef7;
+    --accent2: #2d5fcf;
+    --green: #3ecf8e;
+    --amber: #f5a623;
+    --red: #f25f5c;
+    --purple: #a78bfa;
+    --teal: #2dd4bf;
+    --mono: 'IBM Plex Mono', monospace;
+    --serif: 'Noto Serif KR', serif;
+    --sans: 'Pretendard', -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* grid bg */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(79,142,247,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(79,142,247,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  .wrap { max-width: 860px; margin: 0 auto; padding: 3rem 1.5rem 5rem; position: relative; z-index: 1; }
+
+  /* Header */
+  header { margin-bottom: 3rem; }
+  .header-eyebrow {
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--accent); font-family: var(--mono); margin-bottom: 0.75rem;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .header-eyebrow::before { content: '//'; opacity: 0.5; }
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 600; line-height: 1.2;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+  .header-sub {
+    font-size: 14px; color: var(--text2); max-width: 480px; line-height: 1.7;
+  }
+  .header-sub span { color: var(--amber); font-family: var(--mono); font-size: 12px; }
+
+  /* Tabs */
+  .tabs {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1rem;
+  }
+  .tab {
+    font-size: 12.5px; font-weight: 500;
+    padding: 6px 16px;
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: all 0.2s;
+    letter-spacing: 0.01em;
+  }
+  .tab:hover { border-color: var(--accent); color: var(--accent); background: rgba(79,142,247,0.06); }
+  .tab.active { background: var(--accent2); border-color: var(--accent); color: #fff; }
+
+  /* Cards */
+  .cards { display: grid; gap: 16px; }
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--border2); }
+
+  .card-head {
+    padding: 1rem 1.25rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .card-num {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--text3); min-width: 28px;
+  }
+  .card-title {
+    font-size: 14px; font-weight: 500; color: var(--text); flex: 1;
+  }
+  .badge {
+    font-size: 10px; letter-spacing: 0.08em;
+    padding: 3px 9px; border-radius: 3px;
+    font-family: var(--mono); white-space: nowrap;
+  }
+  .badge-blue  { background: rgba(79,142,247,0.15); color: #7ab0fb; border: 1px solid rgba(79,142,247,0.25); }
+  .badge-green { background: rgba(62,207,142,0.12); color: #5de0a8; border: 1px solid rgba(62,207,142,0.22); }
+  .badge-amber { background: rgba(245,166,35,0.12); color: #f8c26b; border: 1px solid rgba(245,166,35,0.22); }
+  .badge-red   { background: rgba(242,95,92,0.12);  color: #f58180; border: 1px solid rgba(242,95,92,0.22); }
+  .badge-purple{ background: rgba(167,139,250,0.12);color: #c4b0fc; border: 1px solid rgba(167,139,250,0.22); }
+
+  .card-body { padding: 1rem 1.25rem; }
+
+  .prompt-box {
+    font-family: var(--mono);
+    font-size: 12px; line-height: 1.75;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem 1.1rem;
+    color: #c8cedc;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  .var-tag { color: var(--amber); }
+  .comment-tag { color: var(--text3); }
+
+  .actions { display: flex; gap: 8px; align-items: center; }
+  .btn {
+    font-size: 11.5px; padding: 6px 14px;
+    border: 1px solid var(--border2);
+    border-radius: 4px; background: transparent;
+    color: var(--text2); cursor: pointer;
+    font-family: var(--sans); display: flex; align-items: center; gap: 5px;
+    transition: all 0.15s;
+  }
+  .btn:hover { background: var(--bg3); color: var(--text); }
+  .btn.primary { color: var(--accent); border-color: rgba(79,142,247,0.4); }
+  .btn.primary:hover { background: rgba(79,142,247,0.1); }
+  .btn.copied { color: var(--green); border-color: rgba(62,207,142,0.4); }
+  .btn svg { width: 13px; height: 13px; }
+
+  /* Footer */
+  footer {
+    margin-top: 4rem; padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--text3);
+    font-family: var(--mono);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-tip { color: var(--amber); font-size: 11px; }
+
+  /* Panel header section divider */
+  .section-label {
+    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--text3); font-family: var(--mono);
+    margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* Notification toast */
+  #toast {
+    position: fixed; bottom: 2rem; right: 2rem;
+    background: var(--bg3); border: 1px solid var(--green);
+    color: var(--green); font-family: var(--mono); font-size: 12px;
+    padding: 10px 18px; border-radius: 6px;
+    opacity: 0; transform: translateY(10px);
+    transition: all 0.25s; pointer-events: none; z-index: 100;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="header-eyebrow">Claude 기업 분석 프롬프트</div>
+    <h1>기업 분석 프롬프트 템플릿</h1>
+    <p class="header-sub">
+      목적별로 골라 쓰는 12가지 투자 분석 프롬프트.<br>
+      <span>[대괄호]</span> 항목에 기업명·데이터를 채워넣고 Claude에 붙여넣으세요.
+    </p>
+  </header>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-cat="overview">종합 분석</button>
+    <button class="tab" data-cat="financial">재무 분석</button>
+    <button class="tab" data-cat="competitive">경쟁 분석</button>
+    <button class="tab" data-cat="risk">리스크</button>
+    <button class="tab" data-cat="valuation">밸류에이션</button>
+    <button class="tab" data-cat="news">뉴스·공시</button>
+  </div>
+
+  <div id="cards" class="cards"></div>
+
+  <footer>
+    <span>© 2026 Claude 기업 분석 템플릿</span>
+    <span class="footer-tip">// [노란색] = 직접 채워넣을 항목</span>
+  </footer>
+</div>
+
+<div id="toast">✓ 클립보드에 복사됨</div>
+
+<script>
+const templates = {
+  overview: [
+    {
+      title: "기업 종합 분석 리포트",
+      badge: "기본 필수", badgeClass: "badge-blue",
+      prompt: `다음 기업을 투자 관점에서 종합 분석해 줘.
+
+기업명: [회사명]
+분석 목적: [장기 투자 / 단기 트레이딩 / 비교 스크리닝]
+
+아래 항목을 포함해 줘:
+1. 비즈니스 모델 (어떻게 돈을 버는가)
+2. 핵심 경쟁 우위 (모트)
+3. 최근 3년 성장 트렌드 요약
+4. 주요 리스크 3가지
+5. 투자 포인트 (Bull case / Bear case)
+6. 한 줄 결론`
+    },
+    {
+      title: "기업 1페이지 요약",
+      badge: "빠른 파악", badgeClass: "badge-green",
+      prompt: `[회사명]을 모르는 투자자에게 설명한다고 생각하고,
+아래 형식으로 1페이지 분량 요약해 줘:
+
+- 한 줄 설명 (사업 내용)
+- 핵심 제품 / 서비스
+- 주요 고객 및 시장
+- 경쟁사 대비 차별점
+- 최근 이슈 또는 변화
+- 주목해야 할 숫자 1~2개`
+    }
+  ],
+  financial: [
+    {
+      title: "재무제표 해석 요청",
+      badge: "재무 분석", badgeClass: "badge-blue",
+      prompt: `아래 재무 데이터를 투자자 관점에서 해석해 줘.
+
+[여기에 재무 데이터 붙여넣기]
+
+분석 포인트:
+- 매출 성장률과 이익률 추이
+- 부채비율과 재무 건전성
+- 현금흐름 (영업 / 투자 / 재무) 특이사항
+- 동종업계 평균 대비 우열
+- 우려되는 지표가 있다면 명시`
+    },
+    {
+      title: "재무 지표 비교 분석",
+      badge: "비교 분석", badgeClass: "badge-amber",
+      prompt: `아래 두 기업의 재무 지표를 비교해 줘.
+
+기업 A: [회사명]
+기업 B: [회사명]
+
+비교 항목: PER, PBR, ROE, 영업이익률, 부채비율, FCF 수익률
+
+결론으로 투자 관점에서 어느 기업이 더 매력적인지 의견 제시`
+    }
+  ],
+  competitive: [
+    {
+      title: "경쟁 구도 분석",
+      badge: "산업 분석", badgeClass: "badge-blue",
+      prompt: `[회사명]의 경쟁 구도를 분석해 줘.
+
+포함 항목:
+1. 주요 경쟁사 목록 (국내 / 글로벌)
+2. 시장 점유율 구조
+3. 각 플레이어의 강점 / 약점
+4. [회사명]의 경쟁 우위 지속 가능성
+5. 신규 진입자 위협 (스타트업, Big Tech 등)
+6. 향후 3년 경쟁 환경 변화 예상`
+    },
+    {
+      title: "Porter's 5 Forces 분석",
+      badge: "심층 분석", badgeClass: "badge-amber",
+      prompt: `[회사명] / [산업명]에 대해 Porter's 5 Forces 프레임으로 분석해 줘.
+
+1. 기존 경쟁자 간 경쟁 강도
+2. 신규 진입자 위협
+3. 대체재 위협
+4. 구매자 교섭력
+5. 공급자 교섭력
+
+각 항목: 강도 (상 / 중 / 하) + 핵심 근거 2~3줄`
+    }
+  ],
+  risk: [
+    {
+      title: "투자 리스크 체크리스트",
+      badge: "리스크 관리", badgeClass: "badge-red",
+      prompt: `[회사명] 투자에 앞서 다음 리스크를 점검해 줘.
+
+- 규제 / 정책 리스크
+- 경기 민감도 (경기침체 시 영향)
+- 경영진 리스크 (오너 리스크, 거버넌스)
+- 기술 변화 리스크 (디스럽션 가능성)
+- 재무 리스크 (유동성, 만기 도래 부채)
+- 지정학적 리스크 (공급망, 수출 규제 등)
+
+각 리스크: 심각도 (상 / 중 / 하) + 대응 가능성 포함`
+    },
+    {
+      title: "악마의 변호인 (투자 논리 반론)",
+      badge: "의사결정 보조", badgeClass: "badge-amber",
+      prompt: `나는 [회사명]에 투자하려고 한다.
+내 투자 근거는 아래와 같다:
+
+[여기에 투자 근거 작성]
+
+네가 반대 입장 (Bear case)을 맡아서 내 논리의 허점과
+내가 간과하고 있을 수 있는 리스크를 최대한 날카롭게 반박해 줘.
+감정 없이, 근거 중심으로.`
+    }
+  ],
+  valuation: [
+    {
+      title: "현재 밸류에이션 적정성 판단",
+      badge: "밸류에이션", badgeClass: "badge-blue",
+      prompt: `[회사명]의 현재 주가가 적정한지 판단해 줘.
+
+현재 주가: [가격]
+현재 시가총액: [금액]
+주요 재무 지표: [PER, PBR, EV/EBITDA 등 알고 있는 것]
+
+분석 방법:
+- 역사적 밸류에이션 밴드와 비교
+- 성장률 대비 PEG 관점
+- 동종업계 평균 대비 프리미엄 / 디스카운트 이유
+- 현재가 기준 Bull / Base / Bear 시나리오 목표가`
+    },
+    {
+      title: "DCF 시나리오 설계",
+      badge: "심층 분석", badgeClass: "badge-purple",
+      prompt: `[회사명]의 간단한 DCF 시나리오를 설계해 줘.
+
+가정:
+- 향후 5년 매출 성장률: [%]
+- 영업이익률 목표: [%]
+- 할인율 (WACC): [%]
+- 터미널 성장률: [%]
+
+Bull / Base / Bear 3가지 케이스로
+적정 시가총액과 주당 가치를 산출해 줘.`
+    }
+  ],
+  news: [
+    {
+      title: "뉴스 / 공시 요약 및 해석",
+      badge: "뉴스 분석", badgeClass: "badge-green",
+      prompt: `아래 뉴스 / 공시를 투자자 관점에서 요약하고 해석해 줘.
+
+[뉴스 또는 공시 내용 붙여넣기]
+
+포함 항목:
+- 핵심 내용 3줄 요약
+- 주가에 미칠 단기 / 중기 영향
+- 긍정적 해석 vs 부정적 해석
+- 내가 추가로 확인해야 할 사항`
+    },
+    {
+      title: "실적 발표 분석 (어닝 분석)",
+      badge: "어닝 분석", badgeClass: "badge-blue",
+      prompt: `[회사명]의 [분기] 실적 발표 내용을 분석해 줘.
+
+[실적 데이터 또는 IR 자료 붙여넣기]
+
+분석 포인트:
+- 컨센서스 대비 서프라이즈 / 미스 여부
+- 매출 / 이익 성장 드라이버 & 발목 잡은 요인
+- 가이던스 변화 및 경영진 코멘트 핵심
+- 다음 분기 / 연간 전망에 미치는 함의
+- 투자 포지션 변화 필요 여부`
+    }
+  ]
+};
+
+function highlight(text) {
+  return text
+    .replace(/\[([^\]]+)\]/g, '<span class="var-tag">[$1]</span>')
+    .replace(/(\/\/[^\n]*)/g, '<span class="comment-tag">$1</span>');
+}
+
+function renderCards(cat) {
+  const container = document.getElementById('cards');
+  container.innerHTML = '';
+  const items = templates[cat];
+  items.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-head">
+        <span class="card-num">0${idx + 1}</span>
+        <span class="card-title">${item.title}</span>
+        <span class="badge ${item.badgeClass}">${item.badge}</span>
+      </div>
+      <div class="card-body">
+        <div class="prompt-box">${highlight(item.prompt)}</div>
+        <div class="actions">
+          <button class="btn primary" id="copy-${cat}-${idx}" onclick="copyText('${cat}',${idx})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            복사하기
+          </button>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function copyText(cat, idx) {
+  const text = templates[cat][idx].prompt;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById(`copy-${cat}-${idx}`);
+    btn.classList.add('copied');
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 복사됨`;
+    showToast();
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 복사하기`;
+    }, 2000);
+  });
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+document.getElementById('tabs').addEventListener('click', e => {
+  const tab = e.target.closest('.tab');
+  if (!tab) return;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  renderCards(tab.dataset.cat);
+});
+
+renderCards('overview');
+</script>
+</body>
+</html>
